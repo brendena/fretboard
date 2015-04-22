@@ -4,7 +4,7 @@
 # Copyright Mohit Muthanna Cheppudira 2013
 
 class Vex.Flow.Fretboard
-  @DEBUG = true
+  @DEBUG = false
   L = (args...) -> console?.log("(Vex.Flow.Fretboard)", args...) if Vex.Flow.Fretboard.DEBUG
 
   constructor: (@paper, options) ->
