@@ -212,3 +212,23 @@ class Vex.Flow.Test.Fretboard
       "show frets=10,12,15 strings=6,5 color=red\n" +
       "show fret=12 string=1 text=X")
     ok true, "all pass"
+    
+  @divDrawRootstandard: (options) ->
+    div = new Vex.Flow.FretboardDiv("#"+options.canvas_sel)
+    div.build(
+      "option draw_root\n" +
+      "option start=10\n" +
+      "option frets=16\n" +
+      "option width=400\n")
+    ok true, "all pass"
+    
+  @divDrawRootCustomTuning: (options) ->
+    div = new Vex.Flow.FretboardDiv("#"+options.canvas_sel)
+    div.build(
+      "option draw_root=true\n" +
+      "option tuning=BbA#CD" +
+      "options strings=4" + 
+      "option start=10\n" +
+      "option frets=16\n" +
+      "option width=400\n")
+    ok true, "all pass"

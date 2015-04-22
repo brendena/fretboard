@@ -4,7 +4,7 @@
 # Copyright Mohit Muthanna Cheppudira 2013
 
 class Vex.Flow.Fretboard
-  @DEBUG = false
+  @DEBUG = true
   L = (args...) -> console?.log("(Vex.Flow.Fretboard)", args...) if Vex.Flow.Fretboard.DEBUG
 
   constructor: (@paper, options) ->
@@ -26,6 +26,8 @@ class Vex.Flow.Fretboard
       font_color: "black"
       nut_color: "#aaa"
       start_fret_text: null
+      show_root:false
+      
 
     _.extend(@options, options)
 
@@ -203,6 +205,53 @@ class Vex.Flow.Fretboard
     path.fillColor = options.fillColor
     @paper.view.draw()
 
+  getTuningLetters: ->
+    if(@options.tuning == "standard")
+      if(@options.strings == 6)
+        tuning = "EADGBE"
+      else #for 4 string bass like instruments
+        tuning = "EADG"
+    else
+      tuning = @options.tuning
+    return tuning
+    
+  drawRoot: ->
+    L "drawRoot: "
+    
+    tuning = getTuningLetters()
+    
+    expression = /^[A-Za-z]+$/
+    expression2 = /^[A-G]+$/
+    addSlice = ()->
+    textChar = new Array(@options.strings)
+    for i in [@options.strings-1..0] #you input the code from lowest to highest
+      while(true)
+        if(expression.test(tuning[0]))
+          throw error("Invalid tuning: value #{tuning[0]} in tunning #{@options.tuning}") if(!expression2.test(tuning[0]))
+          textChar[i] = tuning[0]
+          tuning = tuning.slice(1,tuning.length)
+          
+          break
+        tuning = tuning.slice(1,tuning.length)
+      
+      if(tuning[0] == "b" || tuning[0] == "#" && tuning[0] != ' ')
+        textChar[i] += tuning[0]
+        tuning = tuning.slice(1,tuning.length)
+        
+      console.log(textChar[i] + " " + i)
+      throw error("Invalid tuning: for #{@options.strings} strings tunning #{@options.tuning}") if (textChar[i]? == false)
+        
+    throw error("Invalid tuning: for #{@options.strings} strings tunning #{@options.tuning}") if (tuning != '')
+    
+    for num in [0..@options.strings-1]
+      options =
+        "string":num+1
+        "fret": 0
+        "text":textChar[num]
+        "fillColor":"white"
+        "color":"#bbb"
+      @lightText(options)
+    
   draw: ->
     L "draw()"
     for num in [1..@options.strings]
@@ -215,6 +264,9 @@ class Vex.Flow.Fretboard
       @drawNut()
     else
       @showStartFret()
+    
+    if @options.show_root
+      @drawRoot()
 
     @drawMarkers()
     @paper.view.draw()
@@ -234,6 +286,7 @@ class Vex.Flow.FretboardDiv
       "start": 1
       "start-text": null
       "tuning": "standard"
+      "show_root": false
     throw error("Invalid selector: " + @sel) if @sel? and $(@sel).length == 0
     @id ?= $(@sel).attr('id')
     @lights = []
@@ -261,6 +314,8 @@ class Vex.Flow.FretboardDiv
           fboptions.start_fret = v
         when "start-text"
           fboptions.start_fret_text = v
+        when "show_root"
+          fboptions.show_root = v
         else
           throw error("Invalid option: " + k)
     return fboptions
